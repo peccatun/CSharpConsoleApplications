@@ -26,7 +26,7 @@ namespace Snake
             currentY = INITIAL_Y;
             orientation = Orientation.Right;
             snakeParts = new Queue<ISnakePart>();
-            Initialize(74);
+            Initialize(15);
         }
 
         public Orientation Orientation 
@@ -35,7 +35,7 @@ namespace Snake
             {
                 prevOrientation = orientation;
                 hasTurned = false;
-                this.orientation = value;
+                orientation = value;
             } 
         }
 
@@ -66,6 +66,19 @@ namespace Snake
             {
                 Direction dirrectionTail = new DirectionRight(currentX, currentY);
                 currentX++;
+                if (i > Map.FieldWidht - 2)
+                {
+                    currentX = Map.FieldWidht - 2;
+                    currentY++;
+                    orientation = Orientation.Down;
+                }
+
+                if (i >= Map.FieldWidht - 2 + Map.FieldHeight - 2)
+                {
+                    currentX = i -(Map.FieldHeight - 2 + Map.FieldWidht - 2);
+                    currentY = Map.FieldHeight - 2;
+                    orientation = Orientation.Left;
+                }
                 ISnakePart head = new SnakePart(dirrectionTail);
                 head.Draw();
                 snakeParts.Enqueue(head);
@@ -162,7 +175,6 @@ namespace Snake
             RemoveTail();
 
         }
-
 
         private void AddHead(Direction direction) 
         {
