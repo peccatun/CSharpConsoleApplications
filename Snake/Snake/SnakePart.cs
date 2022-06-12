@@ -1,4 +1,5 @@
 ﻿using Snake.Directions;
+using Snake.GlobalConstants;
 using System;
 
 namespace Snake
@@ -15,13 +16,20 @@ namespace Snake
         public void Dispose()
         {
             SetCursorPosition();
+
+            if (direction.Y == 0 || direction.Y >= Map.FieldHeight)
+            {
+                Console.WriteLine('-');
+                return;
+            }
+
             Console.Write(' ');
         }
 
         public void Draw()
         {
             SetCursorPosition();
-            Console.Write('o');
+            Console.Write('*');
         }
 
         private void SetCursorPosition()

@@ -12,6 +12,8 @@ namespace Snake
         private const int INITIAL_Y = 1;
 
         private Orientation orientation;
+        private Orientation prevOrientation;
+        private bool hasTurned;
         private int currentX;
         private int currentY;
 
@@ -19,17 +21,20 @@ namespace Snake
 
         public Snake()
         {
+            hasTurned = true;
             currentX = INITIAL_X;
             currentY = INITIAL_Y;
             orientation = Orientation.Right;
             snakeParts = new Queue<ISnakePart>();
-            Initialize(15);
+            Initialize(74);
         }
 
         public Orientation Orientation 
         {
             set 
             {
+                prevOrientation = orientation;
+                hasTurned = false;
                 this.orientation = value;
             } 
         }
@@ -72,35 +77,21 @@ namespace Snake
         private void MoveDown()
         {
             currentY++;
-            if (currentY >= Map.FieldHeight - 1)
+            if (prevOrientation == Orientation.Left && !hasTurned)
             {
-                currentY = 1;
+                hasTurned = true;
+                currentX--;
             }
+
+            if (prevOrientation == Orientation.Right && !hasTurned)
+            {
+                hasTurned = true;
+                currentX++;
+            }
+
+            AdjustXy();
+
             Direction direction = new DirectionDown(currentX, currentY);
-            AddHead(direction);
-            RemoveTail();
-        }
-
-        private void MoveLeft()
-        {
-            currentX--;
-            if (currentX <= 1)
-            {
-                currentX = Map.FieldWidht - 1;
-            }
-            Direction direction = new DirectionLeft(currentX, currentY);
-            AddHead(direction);
-            RemoveTail();
-        }
-
-        private void MoveRight()
-        {
-            currentX++;
-            if (currentX >= Map.FieldWidht )
-            {
-                currentX = 1;
-            }
-            Direction direction = new DirectionRight(currentX, currentY);
             AddHead(direction);
             RemoveTail();
         }
@@ -108,14 +99,70 @@ namespace Snake
         private void MoveUp()
         {
             currentY--;
-            if (currentY <= 1)
+            if (prevOrientation == Orientation.Left && !hasTurned)
             {
-                currentY = Map.FieldHeight - 1;
+                hasTurned = true;
+                currentX--;
             }
+
+            if (prevOrientation == Orientation.Right && !hasTurned)
+            {
+                hasTurned = true;
+                currentX++;
+            }
+
+            AdjustXy();
             Direction direction = new DirectionUp(currentX, currentY);
             AddHead(direction);
             RemoveTail();
         }
+
+        private void MoveLeft()
+        {
+            currentX--;
+
+            if (prevOrientation == Orientation.Up && !hasTurned)
+            {
+                hasTurned = true;
+                currentY++;
+            }
+
+            if (prevOrientation == Orientation.Down && !hasTurned)
+            {
+                hasTurned = true;
+                currentY--;
+            }
+
+            AdjustXy();
+            Direction direction = new DirectionLeft(currentX, currentY);
+            AddHead(direction);
+            RemoveTail();
+
+        }
+
+        private void MoveRight()
+        {
+            currentX++;
+
+            if (prevOrientation == Orientation.Up && !hasTurned)
+            {
+                hasTurned = true;
+                currentY++;
+            }
+
+            if (prevOrientation == Orientation.Down && !hasTurned)
+            {
+                hasTurned = true;
+                currentY--;
+            }
+
+            AdjustXy();
+            Direction direction = new DirectionRight(currentX, currentY);
+            AddHead(direction);
+            RemoveTail();
+
+        }
+
 
         private void AddHead(Direction direction) 
         {
@@ -128,6 +175,38 @@ namespace Snake
         {
             var tail = snakeParts.Dequeue();
             tail.Dispose();
+        }
+
+        private void AdjustX() 
+        {
+            if (currentX <= 1)
+            {
+                currentX = Map.FieldWidht - 2;
+            }
+
+            if (currentX >= Map.FieldWidht - 1)
+            {
+                currentX = 1;
+            }
+        }
+
+        private void AdjuctY()
+        {
+            if (currentY < 0)
+            {
+                currentY = Map.FieldHeight - 2;
+            }
+
+            if (currentY > Map.FieldHeight)
+            {
+                currentY = 2;
+            }
+        }
+
+        private void AdjustXy() 
+        {
+            AdjustX();
+            AdjuctY();
         }
     }
 }
