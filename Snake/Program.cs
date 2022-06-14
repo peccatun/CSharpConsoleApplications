@@ -1,74 +1,25 @@
-﻿using Snake.Directions;
-using Snake.GlobalConstants;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace Snake
+﻿namespace Snake
 {
+    using Snake.SnakeCore;
+    using Snake.GameCore;
+    using Snake.Settings;
+
     public class Program
     {
+        private const int START_X = 0;
+        private const int END_X = 100;
+        private const int START_Y = 0;
+        private const int END_Y = 40;
+        private const int OFFSET_X = 1;
+        private const int OFFSET_Y = 3;
 
-
-        static Task Main(string[] args)
+        static void Main(string[] args)
         {
-            Console.CursorVisible = false;
-            Console.SetWindowSize(Map.ConsoleWidth, Map.ConsoleHeight);
-            DrawField();
-            Snake snake = new Snake();
-
-            new Thread(() => 
-            {
-                while (true)
-                {
-                    snake.Move();
-                    Thread.Sleep(30);
-                }
-            }).Start();
-
-            while (true)
-            {
-                ConsoleKeyInfo input = Console.ReadKey();
-
-
-                switch (input.Key)
-                {
-                    case ConsoleKey.DownArrow:
-                        snake.Orientation = Orientation.Down;
-                        break;
-                    case ConsoleKey.LeftArrow:
-                        snake.Orientation = Orientation.Left;
-                        break;
-                    case ConsoleKey.RightArrow:
-                        snake.Orientation = Orientation.Right;
-                        break;
-                    case ConsoleKey.UpArrow:
-                        snake.Orientation = Orientation.Up;
-                        break;
-                    default:
-                        break;
-                };
-
-            };
-        }
-
-        static void DrawField() 
-        {
-            for (int i = 0; i < Map.FieldHeight; i++)
-            {
-                Console.SetCursorPosition(0,i);
-                Console.Write('|');
-                Console.SetCursorPosition(Map.FieldWidht, i);
-                Console.Write('|');
-            }
-
-            for (int i = 0; i < Map.FieldWidht; i++)
-            {
-                Console.SetCursorPosition(i, 0);
-                Console.Write('-');
-                Console.SetCursorPosition(i, Map.FieldHeight);
-                Console.Write('-');
-            }
+            MapSetting mapSetting = new MapSetting(START_X, END_X, START_Y, END_Y, OFFSET_X, OFFSET_Y);
+            SnakeSetting snakeSettings = new SnakeSetting(mapSetting);
+            SnakeObject snake = new SnakeObject(snakeSettings);
+            IGame game = new Game(snake, mapSetting);
+            game.Start();
         }
     }
 }
