@@ -4,18 +4,21 @@
     using System.Threading;
     using Snake.SnakeCore;
     using Snake.Directions;
-    using Snake.GlobalConstants;
     using Snake.Settings;
+    using Snake.GameObjects;
+    using Snake.Senses;
 
     public class Game : IGame
     {
         private readonly SnakeObject snake;
-        private readonly MapSetting mapSetting;
+        private readonly BaseSetting mapSetting;
+        private readonly IFood food;
 
-        public Game(SnakeObject snake, MapSetting mapSetting)
+        public Game(SnakeObject snake, BaseSetting mapSetting, IFood food)
         {
             this.snake = snake;
             this.mapSetting = mapSetting;
+            this.food = food;
         }
 
         public void Start()
@@ -26,12 +29,15 @@
 
         private void Engine() 
         {
+            food.Spawn();
+
             new Thread(() =>
             {
                 while (true)
                 {
                     snake.Move();
-                    Thread.Sleep(30);
+                    snake.Sense(food as ISenseble, food);
+                    Thread.Sleep(60);
                 }
             }).Start();
 
@@ -64,7 +70,7 @@
         private void SetUpField() 
         {
             Console.CursorVisible = false;
-            Console.SetWindowSize(Settings.ConsoleWidth, Settings.ConsoleHeight);
+            Console.SetWindowSize(150, 50);
             DrawField();
         }
 
@@ -89,7 +95,7 @@
 
         private void DrawScoreMap() 
         {
-
+            throw new NotImplementedException();
         }
     }
 }

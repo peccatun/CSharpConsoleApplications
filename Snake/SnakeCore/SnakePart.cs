@@ -1,5 +1,4 @@
 ﻿using Snake.Directions;
-using Snake.GlobalConstants;
 using Snake.Settings;
 using System;
 

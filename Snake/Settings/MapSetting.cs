@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Snake.Settings
 {
-    public class MapSetting
+    public class MapSetting : BaseSetting
     {
         private readonly int startX;
         private readonly int endX;
@@ -23,12 +23,13 @@ namespace Snake.Settings
             this.offsetY = offsetY;
         }
 
-        public int StartX => startX + offsetX;
+        
+        public override int StartX => startX + offsetX;
 
-        public int EndX => endX + offsetX;
+        public override int EndX => endX + offsetX;
 
-        public int StartY => startY + offsetY;
+        public override int StartY => startY + offsetY;
 
-        public int EndY => endY + offsetY;
+        public override int EndY => endY + offsetY;
     }
 }

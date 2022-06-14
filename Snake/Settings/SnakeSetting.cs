@@ -1,20 +1,20 @@
 ﻿namespace Snake.Settings
 {
-    public class SnakeSetting
+    public class SnakeSetting : BaseSetting
     {
-        private readonly MapSetting setting;
+        private readonly BaseSetting _setting;
 
-        public SnakeSetting(MapSetting setting)
+        public SnakeSetting(BaseSetting setting)
         {
-            this.setting = setting;
+            _setting = setting;
         }
 
-        public int StartX => setting.StartX + 1;
+        public override int StartX => _setting.StartX + 1;
 
-        public int EndX => setting.EndX - 1;
+        public override int EndX => _setting.EndX - 1;
 
-        public int StartY => setting.StartY + 1;
+        public override int StartY => _setting.StartY + 1;
 
-        public int EndY => setting.EndY - 1;
+        public override int EndY => _setting.EndY - 1;
     }
 }

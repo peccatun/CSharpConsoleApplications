@@ -1,5 +1,6 @@
 ﻿using Snake.Directions;
-using Snake.GlobalConstants;
+using Snake.GameObjects;
+using Snake.Senses;
 using Snake.Settings;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using System.Text;
 
 namespace Snake.SnakeCore
 {
-    public class SnakeObject
+    public class SnakeObject : ISense
     {
 
         private Orientation orientation;
@@ -15,18 +16,18 @@ namespace Snake.SnakeCore
         private bool hasTurned;
         private int currentX;
         private int currentY;
-        private readonly SnakeSetting settings;
+        private readonly BaseSetting _snakeSetting;
 
         private readonly Queue<ISnakePart> snakeParts;
 
-        public SnakeObject(SnakeSetting settings)
+        public SnakeObject(BaseSetting snakeSetting)
         {
             hasTurned = true;
-            currentX = settings.StartX;
-            currentY = settings.StartY;
+            currentX = snakeSetting.StartX;
+            currentY = snakeSetting.StartY;
             orientation = Orientation.Right;
             snakeParts = new Queue<ISnakePart>();
-            this.settings = settings;
+            this._snakeSetting = snakeSetting;
             Initialize(15);
         }
 
@@ -67,25 +68,23 @@ namespace Snake.SnakeCore
             {
                 Direction dirrectionTail = new DirectionRight(currentX, currentY);
                 currentX++;
-                if (i > settings.EndX)
+                if (i > _snakeSetting.EndX)
                 {
-                    currentX = settings.EndX;
+                    currentX = _snakeSetting.EndX;
                     currentY++;
                     orientation = Orientation.Down;
                 }
 
-                if (i >= settings.EndX - 2 + settings.EndY - 2)
+                if (i >= _snakeSetting.EndX - 2 + _snakeSetting.EndY - 2)
                 {
-                    currentX = i -(settings.EndY - 2 + settings.EndX - 2);
-                    currentY = settings.StartX - 2;
+                    currentX = i -(_snakeSetting.EndY - 2 + _snakeSetting.EndX - 2);
+                    currentY = _snakeSetting.StartX - 2;
                     orientation = Orientation.Left;
                 }
                 ISnakePart head = new SnakePart(dirrectionTail);
                 head.Draw();
                 snakeParts.Enqueue(head);
             }
-
-
         }
 
         private void MoveDown()
@@ -105,7 +104,7 @@ namespace Snake.SnakeCore
 
             AdjustXy();
 
-            Direction direction = new DirectionDown(currentX, currentY);
+            Direction direction = DirectionFactory(orientation, currentX, currentY);
             AddHead(direction);
             RemoveTail();
         }
@@ -126,7 +125,7 @@ namespace Snake.SnakeCore
             }
 
             AdjustXy();
-            Direction direction = new DirectionUp(currentX, currentY);
+            Direction direction = DirectionFactory(orientation, currentX, currentY);
             AddHead(direction);
             RemoveTail();
         }
@@ -148,7 +147,7 @@ namespace Snake.SnakeCore
             }
 
             AdjustXy();
-            Direction direction = new DirectionLeft(currentX, currentY);
+            Direction direction = DirectionFactory(orientation, currentX, currentY);
             AddHead(direction);
             RemoveTail();
 
@@ -171,10 +170,27 @@ namespace Snake.SnakeCore
             }
 
             AdjustXy();
-            Direction direction = new DirectionRight(currentX, currentY);
+            Direction direction = DirectionFactory(orientation, currentX, currentY);
             AddHead(direction);
             RemoveTail();
 
+        }
+
+        private Direction DirectionFactory(Orientation orientation, int x, int y) 
+        {
+            switch (orientation)
+            {
+                case Orientation.Up:
+                    return new DirectionUp(x, y);
+                case Orientation.Down:
+                    return new DirectionDown(x, y);
+                case Orientation.Left: 
+                    return new DirectionLeft(x, y);
+                case Orientation.Right:
+                    return new DirectionRight(x, y);
+                default:
+                    return null;
+            }
         }
 
         private void AddHead(Direction direction) 
@@ -192,27 +208,27 @@ namespace Snake.SnakeCore
 
         private void AdjustX() 
         {
-            if (currentX <= settings.StartX)
+            if (currentX <= _snakeSetting.StartX)
             {
-                currentX = settings.EndX - 2;
+                currentX = _snakeSetting.EndX - 2;
             }
 
-            if (currentX >= settings.EndX - 1)
+            if (currentX >= _snakeSetting.EndX - 1)
             {
-                currentX = settings.StartX + 1;
+                currentX = _snakeSetting.StartX + 1;
             }
         }
 
         private void AdjuctY()
         {
-            if (currentY < settings.StartY)
+            if (currentY < _snakeSetting.StartY)
             {
-                currentY = settings.EndY - 2;
+                currentY = _snakeSetting.EndY - 2;
             }
 
-            if (currentY > settings.EndY)
+            if (currentY > _snakeSetting.EndY)
             {
-                currentY = settings.StartY + 2;
+                currentY = _snakeSetting.StartY + 2;
             }
         }
 
@@ -221,5 +237,44 @@ namespace Snake.SnakeCore
             AdjustX();
             AdjuctY();
         }
+
+        public void Sense(ISenseble senseble, IFood food)
+        {
+            if (currentX == senseble.CurrentX && currentY == senseble.CurrentY)
+            {
+                Eat(food);
+            }
+        }
+
+        private void Eat(IFood food) 
+        {
+            food.Destroy();
+            Grow();
+        }
+
+        private void Grow() 
+        {
+            switch (orientation)
+            {
+                case Orientation.Up:
+                    currentY--;
+                    break;
+                case Orientation.Down:
+                    currentY++;
+                    break;
+                case Orientation.Left:
+                    currentX--;
+                    break;
+                case Orientation.Right:
+                    currentX++;
+                    break;
+                default:
+                    break;
+            }
+            AdjustXy();
+            Direction direction = DirectionFactory(orientation, currentX, currentY);
+            AddHead(direction);
+        }
+    
     }
 }
